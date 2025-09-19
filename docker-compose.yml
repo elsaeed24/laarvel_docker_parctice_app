@@ -1,0 +1,70 @@
+version: '3.8'
+
+services:
+  project1:
+    build: ./test_1
+    container_name: test_1
+    ports:
+      - "8001:80"
+    volumes:
+      - ./test_1/src:/var/www/html
+    depends_on:
+      - db1
+    networks:
+      - laravel
+
+  db1:
+    image: mysql:8
+    container_name: test1_db
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: test1_db
+    volumes:
+      - db1_data:/var/lib/mysql   # 👈 إضافة volume
+    networks:
+      - laravel
+
+  project2:
+    build: ./test_2
+    container_name: test_2
+    ports:
+      - "8002:80"
+    volumes:
+      - ./test_2/src:/var/www/html
+    depends_on:
+      - db2
+    networks:
+      - laravel
+
+  db2:
+    image: mysql:8
+    container_name: test2_db
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: test2_db
+    volumes:
+      - db2_data:/var/lib/mysql   # 👈 إضافة volume
+    networks:
+      - laravel
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: pma
+    restart: always
+    ports:
+      - "8080:80"
+    environment:
+      PMA_ARBITRARY: 1
+    depends_on:
+      - db1
+      - db2
+    networks:
+      - laravel
+
+networks:
+  laravel:
+    driver: bridge
+
+volumes:
+  db1_data:
+  db2_data:
